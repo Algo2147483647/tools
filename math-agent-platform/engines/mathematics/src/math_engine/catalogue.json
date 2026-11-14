@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "operation": "evaluate",
     "timeoutMs": 30000,
-    "description": "Exact rational arithmetic and one-variable linear equations. Supports implicit multiplication. No powers or variable denominators. Independently checks substitution and affine conditions.",
+    "description": "Exact rational arithmetic and one-variable linear equations. Supports implicit multiplication. Rational constants support integer powers with ^ or **, including negative exponents (absolute exponent <=4096). Powers bind before unary minus and associate right. Zero to zero/negative powers, fractional/variable exponents and nonlinear variable powers are rejected. No variable denominators. Independently checks substitution and affine conditions.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -33,7 +33,7 @@
       "limit"
     ],
     "timeoutMs": 30000,
-    "description": "Symbolic algebra/calculus using SymPy. Explicit multiplication; powers use ^ or **. Operations: simplify, expand, factor, solve ONE variable equation, differentiate, integrate (optional finite interval), limit. Declare real/complex domain. Does not execute code.",
+    "description": "Symbolic algebra/calculus using SymPy. Explicit multiplication; powers use ^ or **. Operations: simplify, expand, factor, solve ONE variable equation, differentiate, integrate (optional finite interval), limit. Declare real/complex domain. Does not execute code. Exact integration endpoints accept strings such as 1/3 or pi; use strings to preserve decimal precision.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -60,7 +60,16 @@
         "interval": {
           "type": "array",
           "items": {
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            ]
           },
           "maxItems": 2,
           "minItems": 2
@@ -108,7 +117,7 @@
       "eigenvalues"
     ],
     "timeoutMs": 30000,
-    "description": "Floating-point numerical calculation. root requires a continuous function with a sign-changing interval; integrate uses finite bounds; minimize is bounded LOCAL minimization, not a global proof. linear_solve needs square matrix and vector; eigenvalues needs square matrix. Explicit multiplication.",
+    "description": "Floating-point numerical calculation. root requires a continuous function with a sign-changing interval; integrate uses finite bounds; minimize is bounded LOCAL minimization, not a global proof. linear_solve needs square matrix and vector; eigenvalues needs square matrix. Explicit multiplication. Precision specifies absolute/relative tolerances and iteration budget; mutually exclusive with tolerance. Only standard binary64 is currently supported; requested tolerances are not certified error bounds.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -163,6 +172,48 @@
           },
           "maxItems": 50,
           "minItems": 1
+        },
+        "precision": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "high_precision",
+                "certified"
+              ]
+            },
+            "absoluteTolerance": {
+              "type": "number",
+              "minimum": 1e-14,
+              "maximum": 0.01
+            },
+            "relativeTolerance": {
+              "type": "number",
+              "minimum": 1e-14,
+              "maximum": 0.01
+            },
+            "workingDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "maxDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "maxIterations": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "certificationRequired": {
+              "type": "boolean"
+            }
+          }
         }
       },
       "required": [
@@ -384,7 +435,7 @@
       "second_order_cone"
     ],
     "timeoutMs": 30000,
-    "description": "Convex optimization with CVXPY/CLARABEL. LP: minimize linear^T x. QP: minimize 0.5*x^T quadratic*x + linear^T*x; quadratic must be symmetric PSD. Least squares: minimize ||design*x-target||^2, optional linear term. Constraints: inequalityMatrix*x<=inequalityBounds, equalityMatrix*x=equalityBounds, finite lower/upper. SOC: each cone imposes ||matrix*x+offset||_2 <= axis^T*x+bound. Returns solver status, primal/dual values and feasibility residuals; numerical optimization is not a formal proof.",
+    "description": "Convex optimization with CVXPY/CLARABEL. LP: minimize linear^T x. QP: minimize 0.5*x^T quadratic*x + linear^T*x; quadratic must be symmetric PSD. Least squares: minimize ||design*x-target||^2, optional linear term. Constraints: inequalityMatrix*x<=inequalityBounds, equalityMatrix*x=equalityBounds, finite lower/upper. SOC: each cone imposes ||matrix*x+offset||_2 <= axis^T*x+bound. Returns solver status, primal/dual values and feasibility residuals; numerical optimization is not a formal proof. Precision specifies absolute/relative tolerances and iteration budget; mutually exclusive with tolerance. Only standard binary64 is currently supported; requested tolerances are not certified error bounds.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -550,6 +601,48 @@
           "type": "number",
           "minimum": 1e-10,
           "maximum": 0.001
+        },
+        "precision": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "high_precision",
+                "certified"
+              ]
+            },
+            "absoluteTolerance": {
+              "type": "number",
+              "minimum": 1e-14,
+              "maximum": 0.01
+            },
+            "relativeTolerance": {
+              "type": "number",
+              "minimum": 1e-14,
+              "maximum": 0.01
+            },
+            "workingDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "maxDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "maxIterations": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "certificationRequired": {
+              "type": "boolean"
+            }
+          }
         }
       },
       "required": [

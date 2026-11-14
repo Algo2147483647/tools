@@ -11,36 +11,13 @@ FUNCTIONS={'sin':sp.sin,'cos':sp.cos,'tan':sp.tan,'asin':sp.asin,'acos':sp.acos,
 NUMERIC={sp.sin:np.sin,sp.cos:np.cos,sp.tan:np.tan,sp.asin:np.arcsin,sp.acos:np.arccos,sp.atan:np.arctan,sp.sinh:np.sinh,sp.cosh:np.cosh,sp.tanh:np.tanh,sp.exp:np.exp,sp.log:np.log,sp.Abs:np.abs}
 
 def expression(text, domain='real'):
-    if not isinstance(text,str) or not text.strip() or len(text)>4096: raise ToolError('INVALID_ARGUMENT','Expression must have 1–4096 characters.')
-    text=text.replace('^','**')
-    try: tree=ast.parse(text,mode='eval')
-    except SyntaxError: raise ToolError('INVALID_ARGUMENT','Use explicit multiplication and ASCII math syntax.')
-    if sum(1 for _ in ast.walk(tree))>256: raise ToolError('RESOURCE_LIMIT','Expression is too complex.')
-    def convert(node,depth=0):
-        if depth>48: raise ToolError('RESOURCE_LIMIT','Expression nesting is too deep.')
-        child=lambda x:convert(x,depth+1)
-        if isinstance(node,ast.Constant) and type(node.value) in (int,float):
-            literal=ast.get_source_segment(text,node)
-            if len(literal)>64 or not math.isfinite(float(node.value)): raise ToolError('INVALID_ARGUMENT','Numeric literal is too large.')
-            return sp.Rational(literal)
-        if isinstance(node,ast.Name):
-            if node.id in ('pi','E'): return {'pi':sp.pi,'E':sp.E}[node.id]
-            if not re.fullmatch(r'[A-Za-z][A-Za-z0-9_]{0,23}',node.id): raise ToolError('INVALID_ARGUMENT','Invalid symbol name.')
-            return sp.Symbol(node.id,real=True) if domain=='real' else sp.Symbol(node.id)
-        if isinstance(node,ast.UnaryOp) and isinstance(node.op,(ast.USub,ast.UAdd)): return -child(node.operand) if isinstance(node.op,ast.USub) else child(node.operand)
-        if isinstance(node,ast.BinOp):
-            a,b=child(node.left),child(node.right)
-            if isinstance(node.op,ast.Add): return sp.Add(a,b,evaluate=False)
-            if isinstance(node.op,ast.Sub): return sp.Add(a,-b,evaluate=False)
-            if isinstance(node.op,ast.Mult): return sp.Mul(a,b,evaluate=False)
-            if isinstance(node.op,ast.Div): return sp.Mul(a,sp.Pow(b,-1,evaluate=False),evaluate=False)
-            if isinstance(node.op,ast.Pow):
-                if b.is_number and (not b.is_real or abs(b)>1000): raise ToolError('RESOURCE_LIMIT','Exponent is outside the supported budget.')
-                return sp.Pow(a,b,evaluate=False)
-        if isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id in FUNCTIONS and len(node.args)==1 and not node.keywords:
-            return FUNCTIONS[node.func.id](child(node.args[0]))
-        raise ToolError('INVALID_ARGUMENT','Unsupported expression syntax; only mathematical operators and allowlisted functions are accepted.')
-    return convert(tree.body)
+    from .ir import parse, lower
+    from .domains import analyze
+    tree=parse(text)
+    if tree['kind'] in ('Equation','Matrix'):raise ToolError('INVALID_ARGUMENT','A scalar expression is required.')
+    analyze(tree,domain)
+    return lower(tree,domain)
+
 
 def symbol(name,domain='real'):
     if not isinstance(name,str) or not re.fullmatch(r'[A-Za-z][A-Za-z0-9_]{0,23}',name) or name in ('pi','E'): raise ToolError('INVALID_ARGUMENT','Invalid variable.')
@@ -59,6 +36,23 @@ def interval(args,key='interval'):
     a,b=map(number,bounds)
     if not a<b: raise ToolError('INVALID_ARGUMENT','Interval endpoints must be increasing.')
     return a,b
+
+def exact_interval(args):
+    bounds = args.get('interval')
+    if not isinstance(bounds, list) or len(bounds) != 2:
+        raise ToolError('INVALID_ARGUMENT', 'Supply two exact interval endpoints.')
+    values = []
+    for bound in bounds:
+        if isinstance(bound, bool) or not isinstance(bound, (str, int, float)):
+            raise ToolError('INVALID_ARGUMENT', 'Invalid exact endpoint.')
+        value = expression(str(bound))
+        if value.free_symbols or value.is_real is not True or value.is_finite is not True:
+            raise ToolError('DOMAIN_ERROR', 'Endpoints must be finite real constants.')
+        values.append(value)
+    if (values[0] < values[1]) is not sp.S.true:
+        raise ToolError('INVALID_ARGUMENT', 'Endpoints must be provably increasing.')
+    return values
+
 
 def numeric_function(expr,x):
     if expr.free_symbols-{x}: raise ToolError('INVALID_ARGUMENT','Supply values for all symbols other than '+str(x)+'.')

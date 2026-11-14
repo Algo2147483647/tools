@@ -11,6 +11,8 @@ def catalogue():
 def _execute(request):
     from .protocol import validate_request, validate, VALUE_SCHEMA
     from .common import ToolError
+    version = request.get('schemaVersion', 1) if isinstance(request, dict) else 1
+    version = version if type(version) is int and version in (1, 2) else 1
     try:
         validate_request(request)
         name, args = request['tool'], request['arguments']
@@ -33,12 +35,18 @@ def _execute(request):
             from .statistics import analysis
             output = analysis(args, request.get('dataset'))
         output['diagnostics'].update(engine='math-agent-engine', version=__version__)
-        validate(output, VALUE_SCHEMA)
-        return {'schemaVersion': 1, 'ok': True, 'value': output}
+        if version == 2:
+            from .results import normalize
+            from .protocol import VALUE_V2_SCHEMA
+            output = normalize(output, name, args)
+            validate(output, VALUE_V2_SCHEMA)
+        else:
+            validate(output, VALUE_SCHEMA)
+        return {'schemaVersion': version, 'ok': True, 'value': output}
     except ToolError as error:
-        return {'schemaVersion': 1, 'ok': False, 'error': {'code': error.code, 'message': error.message}}
+        return {'schemaVersion': version, 'ok': False, 'error': {'code': error.code, 'message': error.message}}
     except (ValueError, TypeError, KeyError, ZeroDivisionError) as error:
-        return {'schemaVersion': 1, 'ok': False, 'error': {'code': 'DOMAIN_ERROR', 'message': str(error)[:500]}}
+        return {'schemaVersion': version, 'ok': False, 'error': {'code': 'DOMAIN_ERROR', 'message': str(error)[:500]}}
 
 
 

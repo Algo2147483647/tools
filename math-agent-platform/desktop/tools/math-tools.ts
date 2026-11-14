@@ -13,7 +13,7 @@ export function mathDefinitions(datasets: any, allowedDatasetIds: string[] = [])
                     const data = datasets.get(args.datasetId);
                     dataset = {columns:data.columns, rows:data.rows};
                 }
-                return executeMath({schemaVersion:1, tool:item.name, arguments:args, ...(dataset ? {dataset} : {})}, signal, progress);
+                return executeMath({schemaVersion:2, tool:item.name, arguments:args, ...(dataset ? {dataset} : {})}, signal, progress);
             }};
     });
 }

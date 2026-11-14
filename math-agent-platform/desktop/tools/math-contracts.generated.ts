@@ -5,7 +5,7 @@ export const mathCatalogue = [
     "version": "2.0.0",
     "operation": "evaluate",
     "timeoutMs": 30000,
-    "description": "Exact rational arithmetic and one-variable linear equations. Supports implicit multiplication. No powers or variable denominators. Independently checks substitution and affine conditions.",
+    "description": "Exact rational arithmetic and one-variable linear equations. Supports implicit multiplication. Rational constants support integer powers with ^ or **, including negative exponents (absolute exponent <=4096). Powers bind before unary minus and associate right. Zero to zero/negative powers, fractional/variable exponents and nonlinear variable powers are rejected. No variable denominators. Independently checks substitution and affine conditions.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -34,7 +34,7 @@ export const mathCatalogue = [
       "limit"
     ],
     "timeoutMs": 30000,
-    "description": "Symbolic algebra/calculus using SymPy. Explicit multiplication; powers use ^ or **. Operations: simplify, expand, factor, solve ONE variable equation, differentiate, integrate (optional finite interval), limit. Declare real/complex domain. Does not execute code.",
+    "description": "Symbolic algebra/calculus using SymPy. Explicit multiplication; powers use ^ or **. Operations: simplify, expand, factor, solve ONE variable equation, differentiate, integrate (optional finite interval), limit. Declare real/complex domain. Does not execute code. Exact integration endpoints accept strings such as 1/3 or pi; use strings to preserve decimal precision.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -61,7 +61,16 @@ export const mathCatalogue = [
         "interval": {
           "type": "array",
           "items": {
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            ]
           },
           "maxItems": 2,
           "minItems": 2
@@ -109,7 +118,7 @@ export const mathCatalogue = [
       "eigenvalues"
     ],
     "timeoutMs": 30000,
-    "description": "Floating-point numerical calculation. root requires a continuous function with a sign-changing interval; integrate uses finite bounds; minimize is bounded LOCAL minimization, not a global proof. linear_solve needs square matrix and vector; eigenvalues needs square matrix. Explicit multiplication.",
+    "description": "Floating-point numerical calculation. root requires a continuous function with a sign-changing interval; integrate uses finite bounds; minimize is bounded LOCAL minimization, not a global proof. linear_solve needs square matrix and vector; eigenvalues needs square matrix. Explicit multiplication. Precision specifies absolute/relative tolerances and iteration budget; mutually exclusive with tolerance. Only standard binary64 is currently supported; requested tolerances are not certified error bounds.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -164,6 +173,48 @@ export const mathCatalogue = [
           },
           "maxItems": 50,
           "minItems": 1
+        },
+        "precision": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "high_precision",
+                "certified"
+              ]
+            },
+            "absoluteTolerance": {
+              "type": "number",
+              "minimum": 1e-14,
+              "maximum": 0.01
+            },
+            "relativeTolerance": {
+              "type": "number",
+              "minimum": 1e-14,
+              "maximum": 0.01
+            },
+            "workingDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "maxDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "maxIterations": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "certificationRequired": {
+              "type": "boolean"
+            }
+          }
         }
       },
       "required": [
@@ -385,7 +436,7 @@ export const mathCatalogue = [
       "second_order_cone"
     ],
     "timeoutMs": 30000,
-    "description": "Convex optimization with CVXPY/CLARABEL. LP: minimize linear^T x. QP: minimize 0.5*x^T quadratic*x + linear^T*x; quadratic must be symmetric PSD. Least squares: minimize ||design*x-target||^2, optional linear term. Constraints: inequalityMatrix*x<=inequalityBounds, equalityMatrix*x=equalityBounds, finite lower/upper. SOC: each cone imposes ||matrix*x+offset||_2 <= axis^T*x+bound. Returns solver status, primal/dual values and feasibility residuals; numerical optimization is not a formal proof.",
+    "description": "Convex optimization with CVXPY/CLARABEL. LP: minimize linear^T x. QP: minimize 0.5*x^T quadratic*x + linear^T*x; quadratic must be symmetric PSD. Least squares: minimize ||design*x-target||^2, optional linear term. Constraints: inequalityMatrix*x<=inequalityBounds, equalityMatrix*x=equalityBounds, finite lower/upper. SOC: each cone imposes ||matrix*x+offset||_2 <= axis^T*x+bound. Returns solver status, primal/dual values and feasibility residuals; numerical optimization is not a formal proof. Precision specifies absolute/relative tolerances and iteration budget; mutually exclusive with tolerance. Only standard binary64 is currently supported; requested tolerances are not certified error bounds.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -551,6 +602,48 @@ export const mathCatalogue = [
           "type": "number",
           "minimum": 1e-10,
           "maximum": 0.001
+        },
+        "precision": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "high_precision",
+                "certified"
+              ]
+            },
+            "absoluteTolerance": {
+              "type": "number",
+              "minimum": 1e-14,
+              "maximum": 0.01
+            },
+            "relativeTolerance": {
+              "type": "number",
+              "minimum": 1e-14,
+              "maximum": 0.01
+            },
+            "workingDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "maxDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "maxIterations": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "certificationRequired": {
+              "type": "boolean"
+            }
+          }
         }
       },
       "required": [
@@ -571,7 +664,10 @@ export const mathWireSchemas = {
     "additionalProperties": false,
     "properties": {
       "schemaVersion": {
-        "const": 1
+        "enum": [
+          1,
+          2
+        ]
       },
       "tool": {
         "type": "string",
@@ -620,7 +716,10 @@ export const mathWireSchemas = {
     "additionalProperties": false,
     "properties": {
       "schemaVersion": {
-        "const": 1
+        "enum": [
+          1,
+          2
+        ]
       },
       "ok": {
         "type": "boolean"
@@ -712,16 +811,190 @@ export const mathWireSchemas = {
           ]
         }
       }
+    ],
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "schemaVersion": {
+              "const": 2
+            },
+            "ok": {
+              "const": true
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "value": {
+              "type": "object",
+              "required": [
+                "result",
+                "views",
+                "diagnostics",
+                "verification",
+                "assumptions",
+                "warnings"
+              ],
+              "properties": {
+                "result": {
+                  "type": "object",
+                  "required": [
+                    "state",
+                    "representation",
+                    "completeness",
+                    "domain"
+                  ],
+                  "properties": {
+                    "state": {
+                      "enum": [
+                        "computed",
+                        "partial",
+                        "unresolved"
+                      ]
+                    },
+                    "representation": {
+                      "enum": [
+                        "exact",
+                        "approximate",
+                        "enclosure",
+                        "mixed"
+                      ]
+                    },
+                    "completeness": {
+                      "enum": [
+                        "complete",
+                        "partial",
+                        "unknown",
+                        "not_applicable"
+                      ]
+                    },
+                    "domain": {
+                      "type": "object",
+                      "required": [
+                        "declared",
+                        "conditions",
+                        "exclusions",
+                        "analysisComplete"
+                      ],
+                      "properties": {
+                        "declared": {
+                          "type": "string"
+                        },
+                        "conditions": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "exclusions": {
+                          "type": "array"
+                        },
+                        "analysisComplete": {
+                          "type": "boolean"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "views": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "diagnostics": {
+                  "type": "object"
+                },
+                "verification": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "scope",
+                    "checks",
+                    "evidence"
+                  ],
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "passed",
+                        "failed",
+                        "unknown",
+                        "not_checked"
+                      ]
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "evidence": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "checks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "status",
+                          "evidence"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "enum": [
+                              "passed",
+                              "failed",
+                              "unknown",
+                              "not_checked"
+                            ]
+                          },
+                          "passed": {
+                            "type": "boolean"
+                          },
+                          "evidence": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "assumptions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "warnings": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      }
     ]
   }
 };
-export type MathRequest = { "schemaVersion": 1; "tool": "exact_math" | "symbolic_math" | "numeric_math" | "plot_math" | "analyze_data" | "convex_optimize"; "arguments": Record<string, unknown>; "dataset"?: { "columns": Array<string>; "rows": Array<Array<unknown>> } };
-export type MathResponse = {schemaVersion:1;ok:true;value:{ "result": unknown; "views": Array<Record<string, unknown>>; "diagnostics": Record<string, unknown>; "verification": Record<string, unknown>; "assumptions": Array<string>; "warnings": Array<string> }} | {schemaVersion:1;ok:false;error:{code:string;message:string}};
+export type MathRequest = { "schemaVersion": 1 | 2; "tool": "exact_math" | "symbolic_math" | "numeric_math" | "plot_math" | "analyze_data" | "convex_optimize"; "arguments": Record<string, unknown>; "dataset"?: { "columns": Array<string>; "rows": Array<Array<unknown>> } };
+export type MathValueV2 = { "result": { "state": "computed" | "partial" | "unresolved"; "representation": "exact" | "approximate" | "enclosure" | "mixed"; "completeness": "complete" | "partial" | "unknown" | "not_applicable"; "domain": { "declared": string; "conditions": Array<string>; "exclusions": Array<unknown>; "analysisComplete": boolean } }; "views": Array<Record<string, unknown>>; "diagnostics": Record<string, unknown>; "verification": { "status": "passed" | "failed" | "unknown" | "not_checked"; "scope": string; "evidence": Array<string>; "checks": Array<{ "name": string; "status": "passed" | "failed" | "unknown" | "not_checked"; "passed"?: boolean; "evidence": string }> }; "assumptions": Array<string>; "warnings": Array<string> };
+export type MathResponse = {schemaVersion:1;ok:true;value:{ "result": unknown; "views": Array<Record<string, unknown>>; "diagnostics": Record<string, unknown>; "verification": Record<string, unknown>; "assumptions": Array<string>; "warnings": Array<string> }} | {schemaVersion:2;ok:true;value:MathValueV2} | {schemaVersion:1 | 2;ok:false;error:{code:string;message:string}};
 export interface MathArguments {
   "exact_math": { "expression": string };
-  "symbolic_math": { "operation": "simplify" | "expand" | "factor" | "solve" | "differentiate" | "integrate" | "limit"; "expression": string; "variable"?: string; "interval"?: Array<number>; "domain"?: "real" | "complex"; "order"?: number; "point"?: string; "direction"?: "+" | "-" | "+-" };
-  "numeric_math": { "operation": "root" | "integrate" | "minimize" | "linear_solve" | "eigenvalues"; "expression"?: string; "variable"?: string; "interval"?: Array<number>; "tolerance"?: number; "matrix"?: Array<Array<number>>; "vector"?: Array<number> };
+  "symbolic_math": { "operation": "simplify" | "expand" | "factor" | "solve" | "differentiate" | "integrate" | "limit"; "expression": string; "variable"?: string; "interval"?: Array<number | string>; "domain"?: "real" | "complex"; "order"?: number; "point"?: string; "direction"?: "+" | "-" | "+-" };
+  "numeric_math": { "operation": "root" | "integrate" | "minimize" | "linear_solve" | "eigenvalues"; "expression"?: string; "variable"?: string; "interval"?: Array<number>; "tolerance"?: number; "matrix"?: Array<Array<number>>; "vector"?: Array<number>; "precision"?: { "mode"?: "standard" | "high_precision" | "certified"; "absoluteTolerance"?: number; "relativeTolerance"?: number; "workingDigits"?: number; "maxDigits"?: number; "maxIterations"?: number; "certificationRequired"?: boolean } };
   "plot_math": { "operation": "function" | "scatter" | "line" | "histogram" | "regression"; "expression"?: string; "variable"?: string; "interval"?: Array<number>; "datasetId"?: string; "columns"?: Array<string>; "missingPolicy"?: "reject" | "drop"; "expressions"?: Array<string>; "xColumn"?: string; "yColumn"?: string; "title"?: string; "samples"?: number; "bins"?: number };
   "analyze_data": { "datasetId": string; "columns"?: Array<string>; "missingPolicy"?: "reject" | "drop"; "groupColumn"?: string; "aggregate"?: "mean" | "sum" | "min" | "max" | "count"; "filters"?: Array<{ "column": string; "operator": "eq" | "ne" | "gt" | "ge" | "lt" | "le"; "value": string }>; "operation": "overview" | "describe" | "correlation" | "regression" | "group_by" | "filter" };
-  "convex_optimize": { "operation": "linear_program" | "quadratic_program" | "least_squares" | "second_order_cone"; "linear"?: Array<number>; "quadratic"?: Array<Array<number>>; "design"?: Array<Array<number>>; "target"?: Array<number>; "inequalityMatrix"?: Array<Array<number>>; "inequalityBounds"?: Array<number>; "equalityMatrix"?: Array<Array<number>>; "equalityBounds"?: Array<number>; "lower"?: Array<number>; "upper"?: Array<number>; "cones"?: Array<{ "matrix": Array<Array<number>>; "offset": Array<number>; "axis": Array<number>; "bound": number }>; "tolerance"?: number };
+  "convex_optimize": { "operation": "linear_program" | "quadratic_program" | "least_squares" | "second_order_cone"; "linear"?: Array<number>; "quadratic"?: Array<Array<number>>; "design"?: Array<Array<number>>; "target"?: Array<number>; "inequalityMatrix"?: Array<Array<number>>; "inequalityBounds"?: Array<number>; "equalityMatrix"?: Array<Array<number>>; "equalityBounds"?: Array<number>; "lower"?: Array<number>; "upper"?: Array<number>; "cones"?: Array<{ "matrix": Array<Array<number>>; "offset": Array<number>; "axis": Array<number>; "bound": number }>; "tolerance"?: number; "precision"?: { "mode"?: "standard" | "high_precision" | "certified"; "absoluteTolerance"?: number; "relativeTolerance"?: number; "workingDigits"?: number; "maxDigits"?: number; "maxIterations"?: number; "certificationRequired"?: boolean } };
 }

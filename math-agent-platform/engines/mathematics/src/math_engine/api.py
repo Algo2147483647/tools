@@ -23,6 +23,8 @@ def invoke(request, implementation):
     start = time.time()
     remaining = None if ctx.get('deadline') is None else max(0, int((ctx['deadline']-start)*1000))
     metadata = request if isinstance(request, dict) else {}
+    version = metadata.get('schemaVersion', 1)
+    version = version if type(version) is int and version in (1, 2) else 1
     args = metadata.get('arguments')
     record = dict(callId=str(uuid.uuid4()), parentCallId=ctx.get('parent'), tool=metadata.get('tool'),
                   operation=args.get('operation', 'evaluate') if isinstance(args, dict) else 'unknown', arguments=args,
@@ -32,9 +34,9 @@ def invoke(request, implementation):
     emit()
     try:
         if ctx.get('cancelled') and ctx['cancelled']():
-            reply = {'schemaVersion':1,'ok':False,'error':{'code':'CANCELLED','message':'Parent task cancelled.'}}
+            reply = {'schemaVersion':version,'ok':False,'error':{'code':'CANCELLED','message':'Parent task cancelled.'}}
         elif remaining is not None and remaining <= 0:
-            reply = {'schemaVersion':1,'ok':False,'error':{'code':'TIMED_OUT','message':'Parent deadline exhausted.'}}
+            reply = {'schemaVersion':version,'ok':False,'error':{'code':'TIMED_OUT','message':'Parent deadline exhausted.'}}
         else:
             reply = implementation(request)
         record.update(status='completed' if reply['ok'] else 'failed', response=reply)
@@ -46,20 +48,20 @@ def invoke(request, implementation):
         record['elapsedMs'] = round((time.time()-start)*1000)
         emit()
 
-def solve(*, tool, arguments, dataset=None):
+def solve(*, tool, arguments, dataset=None, schema_version=1):
     """Return the same versioned response as the JSON worker, including errors."""
     from . import execute
-    request = dict(schemaVersion=1, tool=tool, arguments=arguments)
+    request = dict(schemaVersion=schema_version, tool=tool, arguments=arguments)
     if dataset is not None: request['dataset'] = dataset
     return execute(request)
 
-def batch(*, tool, arguments_list, dataset=None):
+def batch(*, tool, arguments_list, dataset=None, schema_version=1):
     """Sequential calls share the parent budget; partial mathematical failures are retained."""
     if not isinstance(arguments_list, (list, tuple)) or len(arguments_list) > 100:
         raise ValueError('Supply at most 100 cases.')
     results = []
     for arguments in arguments_list:
-        result = solve(tool=tool, arguments=arguments, dataset=dataset)
+        result = solve(tool=tool, arguments=arguments, dataset=dataset, schema_version=schema_version)
         results.append(result)
         if not result['ok'] and result['error']['code'] in ('CANCELLED', 'TIMED_OUT'): break
     return results

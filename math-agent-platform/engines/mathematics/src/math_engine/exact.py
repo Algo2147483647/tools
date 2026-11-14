@@ -10,63 +10,37 @@ def bounded(v):
     return v
 
 
-def parse(source):
-    if not isinstance(source, str) or not source.strip():
-        raise ToolError('INVALID_INPUT', 'Enter a mathematical expression.')
-    text = source.strip()
-    for left, right in [('$$', '$$'), ('\\[', '\\]'), ('\\(', '\\)'), ('$', '$')]:
-        if text.startswith(left) and text.endswith(right):
-            text = text[len(left):-len(right)].strip()
-            break
-    text = text.replace('−', '-').replace('×', '*').replace('÷', '/')
-    if len(text) > 4096: raise ToolError('LIMIT', 'Expression exceeds 4096 characters.')
-    tokens = []; offset = 0
-    while offset < len(text):
-        m = re.match(r'\s+|\d+(?:\.\d*)?|\.\d+|[A-Za-z]|[()+*/=\-]', text[offset:])
-        if not m: raise ToolError('UNSUPPORTED', 'Unsupported exact expression syntax.')
-        token = m[0]; offset += len(token)
-        if token.isspace(): continue
-        if token.isalpha() and offset < len(text) and text[offset].isalpha():
-            raise ToolError('UNSUPPORTED', 'Only single-letter variables are supported.')
-        if len(token) > 256: raise ToolError('LIMIT', 'Numeric literal is too long.')
-        tokens.append(token)
-        if len(tokens) > 512: raise ToolError('LIMIT', 'Expression exceeds 512 tokens.')
-    pos = 0; variables = set()
-    def peek(): return tokens[pos] if pos < len(tokens) else None
-    def atom(depth):
-        nonlocal pos
-        if depth > 64: raise ToolError('LIMIT', 'Expression nesting exceeds 64 levels.')
-        token = peek(); pos += 1
-        if token in ('+', '-'): return ('unary', token, atom(depth + 1))
-        if token == '(':
-            result = expr(depth + 1)
-            if peek() != ')': raise ToolError('INVALID_INPUT', 'Missing closing parenthesis.')
-            pos += 1; return result
-        if token and re.fullmatch(r'\d+(?:\.\d*)?|\.\d+', token): return ('number', token)
-        if token and re.fullmatch('[A-Za-z]', token): variables.add(token); return ('variable', token)
-        raise ToolError('INVALID_INPUT', 'Expected a number, variable or parenthesized expression.')
-    def term(depth):
-        nonlocal pos
-        node = atom(depth)
-        while peek() is not None:
-            op = peek()
-            if op in ('*', '/'): pos += 1
-            elif op == '(' or re.fullmatch('[A-Za-z]', op): op = '*'
-            else: break
-            node = ('binary', op, node, atom(depth))
-        return node
-    def expr(depth=0):
-        nonlocal pos
-        node = term(depth)
-        while peek() in ('+', '-'):
-            op = peek(); pos += 1; node = ('binary', op, node, term(depth))
-        return node
-    left = expr(); right = None
-    if peek() == '=': pos += 1; right = expr()
-    if pos != len(tokens): raise ToolError('INVALID_INPUT', 'Unexpected token or equality sign.')
-    if len(variables) > 1: raise ToolError('UNSUPPORTED', 'Only one variable is supported.')
-    if variables and right is None: raise ToolError('NEEDS_INPUT', 'A variable expression requires an equation.')
-    return text, next(iter(variables), None), left, right
+def parse(source, format='ascii'):
+    from .ir import parse as parse_ir
+    tree=parse_ir(source,format,implicit=True)
+    variables=set()
+    def convert(n):
+        kind=n['kind']
+        if kind in ('Integer','DecimalLiteral'):return ('number',n['value'])
+        if kind=='Rational':return ('number',n['numerator']+'/'+n['denominator'])
+        if kind=='Symbol':
+            if len(n['name'])!=1:raise ToolError('UNSUPPORTED','Affine variables must be single letters.')
+            variables.add(n['name']);return ('variable',n['name'])
+        if kind=='Unary':return ('unary',n['operator'],convert(n['args'][0]))
+        ops={'Add':'+','Subtract':'-','Multiply':'*','Divide':'/','Power':'^'}
+        if kind in ops:return ('binary',ops[kind],*[convert(v) for v in n['args']])
+        raise ToolError('UNSUPPORTED','Exact affine arithmetic does not support '+kind+'.')
+    left,right=(convert(tree['args'][0]),convert(tree['args'][1])) if tree['kind']=='Equation' else (convert(tree),None)
+    if len(variables)>1:raise ToolError('UNSUPPORTED','Only one affine variable is supported.')
+    if variables and right is None:raise ToolError('NEEDS_INPUT','Variable expressions require an equation.')
+    return source,next(iter(variables),None),left,right
+
+
+def exponent(base, value):
+    if value.denominator != 1:
+        raise ToolError('UNSUPPORTED', 'Exact rational powers require an integer exponent; use symbolic_math for radicals.')
+    n = value.numerator
+    if abs(n) > 4096: raise ToolError('LIMIT', 'Integer exponent magnitude exceeds 4096.')
+    if not base and n <= 0:
+        raise ToolError('DOMAIN_ERROR', 'Zero to a zero or negative power is undefined.')
+    if max(base.numerator.bit_length()-1, base.denominator.bit_length()-1)*abs(n) > 4096:
+        raise ToolError('LIMIT', 'Power exceeds the arithmetic complexity limit.')
+    return n
 
 
 def affine(node):
@@ -81,6 +55,12 @@ def affine(node):
     elif op == '*':
         if a and c: raise ToolError('UNSUPPORTED', 'Nonlinear products are unsupported.')
         pair = a*d+c*b, b*d
+    elif op == '^':
+        if c: raise ToolError('UNSUPPORTED', 'Variable exponents are unsupported.')
+        if a:
+            if d != 1: raise ToolError('UNSUPPORTED', 'Only the first power of a variable expression is affine.')
+            pair = a, b
+        else: pair = Fraction(0), bounded(b ** exponent(b, d))
     else:
         if c: raise ToolError('UNSUPPORTED', 'Variable denominators are unsupported.')
         pair = a/d, b/d
@@ -94,6 +74,20 @@ def evaluate(node, x):
         v, dependent = evaluate(node[2], x)
         return (-v if node[1] == '-' else v), dependent
     l, lv = evaluate(node[2], x); r, rv = evaluate(node[3], x); op = node[1]
+    if op == '^':
+        if rv or (lv and r != 1):
+            raise ToolError('UNSUPPORTED', 'Verifier rejects variable exponents and nonlinear powers.')
+        if lv: return l, True
+        n = exponent(l, r)
+        base = 1/l if n < 0 else l
+        value = Fraction(1)
+        # Separate repeated-squaring evaluation verifies Fraction's power result.
+        n = abs(n)
+        while n:
+            if n & 1: value = bounded(value * base)
+            n >>= 1
+            if n: base = bounded(base * base)
+        return value, False
     if (op == '*' and lv and rv) or (op == '/' and rv):
         raise ToolError('UNSUPPORTED', 'Verifier rejects nonlinear operations and variable denominators.')
     v = l+r if op == '+' else l-r if op == '-' else l*r if op == '*' else l/r
@@ -101,7 +95,9 @@ def evaluate(node, x):
 
 
 def exact(args):
-    text, variable, left, right = parse(args['expression'])
+    if args.get('operation','evaluate') != 'evaluate':return arithmetic(args)
+    if any(k in args for k in ('other','digits','rounding')):raise ToolError('INVALID_ARGUMENT','Unused arithmetic arguments.')
+    text, variable, left, right = parse(args['expression'],args.get('format','ascii'))
     a, b = affine(left); c, d = affine(right) if right else (Fraction(0), Fraction(0))
     coefficient, constant = bounded(a-c), bounded(b-d)
     candidate = {'engine': 'python-exact-affine/2', 'variable': variable}
@@ -118,5 +114,41 @@ def exact(args):
     verification = {'status': 'passed' if passed else 'failed', 'scope': 'Exact affine model only; not a proof of natural-language interpretation.',
                     'checks': [{'name': 'Independent affine evaluation and substitution', 'passed': bool(passed)}]}
     result = {'model': {'source': text, 'variable': variable, 'domain': 'linear-equation' if right else 'arithmetic'}, 'candidate': candidate, 'verification': verification}
+    from .ir import parse as parse_ir
+    result['inputIR']=parse_ir(args['expression'],args.get('format','ascii'),implicit=True)
+    result['irVersion']=1
     if not passed: raise ToolError('VERIFICATION_FAILED', 'Exact verification failed.')
     return value_result(result, verification=verification, assumptions=['Exact rational constants', 'Real-valued variables'])
+
+
+def arithmetic(args):
+    op=args['operation']
+    if op not in ('floor','ceil','truncate','mod','compare','round'):raise ToolError('UNSUPPORTED','Unknown exact operation.')
+    if ('other' in args)!=(op in ('mod','compare')):raise ToolError('INVALID_ARGUMENT','other is required only for mod and compare.')
+    if op!='round' and any(k in args for k in ('digits','rounding')):raise ToolError('INVALID_ARGUMENT','Rounding fields apply only to round.')
+    def rational(text):
+        _,variable,left,right=parse(text,args.get('format','ascii'))
+        if variable or right is not None:raise ToolError('INVALID_ARGUMENT','A rational constant is required.')
+        v,dependent=evaluate(left,Fraction(0))
+        return bounded(v)
+    a=rational(args['expression']);b=rational(args['other']) if 'other' in args else None
+    if op=='floor':value=Fraction(a.numerator//a.denominator)
+    elif op=='ceil':value=Fraction(-((-a.numerator)//a.denominator))
+    elif op=='truncate':value=Fraction(int(a))
+    elif op=='compare':value=Fraction((a>b)-(a<b))
+    elif op=='mod':
+        if b==0:raise ToolError('DOMAIN_ERROR','Modulo by zero.')
+        value=a-b*(a//b)
+    else:
+        digits=args.get('digits',0);mode=args.get('rounding','half_even');scale=Fraction(10)**digits;t=a*scale
+        sign=-1 if t<0 else 1; t=abs(t);q,r=divmod(t.numerator,t.denominator)
+        if 2*r>t.denominator or 2*r==t.denominator and (mode=='half_away_from_zero' or q%2):q+=1
+        value=Fraction(sign*q)/scale
+    value=bounded(value)
+    from .ir import encode,parse as parse_ir
+    import sympy as sp
+    result=dict(kind='scalar',value=str(value),exact=True,representation='exact',ir=encode(sp.Rational(value.numerator,value.denominator)),
+                inputIR=parse_ir(args['expression'],args.get('format','ascii'),implicit=True),irVersion=1)
+    return value_result(result,diagnostics={'operation':op,'modConvention':'a-b*floor(a/b)' if op=='mod' else None,
+                        'rounding':args.get('rounding','half_even') if op=='round' else None},
+                        assumptions=['Exact rational arithmetic; comparison returns -1, 0 or 1.'])

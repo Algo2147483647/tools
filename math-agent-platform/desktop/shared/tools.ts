@@ -32,7 +32,9 @@ export interface ToolValue {
         scope?: string;
         checks?: {
             name: string;
-            passed: boolean;
+            passed?: boolean;
+            status?: string;
+            evidence?: string;
             detail?: string;
         }[];
     };

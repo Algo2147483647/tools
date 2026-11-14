@@ -27,11 +27,11 @@ class EngineTests(unittest.TestCase):
             self.assertEqual(r['value']['verification']['status'],'passed')
 
     def test_exact_rejects_unsafe_and_unsupported(self):
-        for source in ['x*x=1','1/x=2','1/0','__import__("os")','x+y=2','2**3','sin(x)', '(x-x)*x=0']:
+        for source in ['x*x=1','1/x=2','1/0','__import__("os")','x+y=2','2**','sin(x)', '(x-x)*x=0']:
             self.assertFalse(self.call('exact_math',expression=source)['ok'],source)
 
     def test_protocol_validation(self):
-        for request in [{'schemaVersion':2,'tool':'exact_math','arguments':{'expression':'1'}},
+        for request in [{'schemaVersion':99,'tool':'exact_math','arguments':{'expression':'1'}},
                         {'schemaVersion':1,'tool':'exact_math','arguments':{'expression':'1','code':'bad'}},
                         {'schemaVersion':1,'tool':'convex_optimize','arguments':{'operation':'linear_program','linear':[float('nan')]}},
                         {'schemaVersion':1,'tool':'unknown','arguments':{}}]:

@@ -87,3 +87,41 @@ must enforce hard interruption. Context does not automatically propagate into ne
 Python threads/processes. Direct CVXPY/SymPy calls bypass API tracing and validation.
 This workspace is a local execution environment, not a filesystem/network sandbox.
 The trace transport is bounded to 6 MB per worker run; keep large outputs in files.
+
+Exact rational arithmetic supports `^` and `**` integer powers (absolute exponent at most 4096, result at most 4096 bits). Powers associate right and bind before unary minus. Rational expressions may supply an exponent if its exact value is an integer. Zero to zero/negative powers is rejected. Variable bases support exponent 1 only; nonlinear equations remain outside the affine solver.
+
+
+## M0 result semantics and precision
+
+The worker accepts schemaVersion 1 and 2 and echoes the requested version. The
+library keeps version 1 by default; pass schema_version=2 to solve/batch. Desktop
+mathematics adapters use version 2. Existing result payload fields remain available;
+v2 adds state (computed/partial/unresolved), representation, completeness and domain.
+Prior symbolic state is retained in legacyState. Domain.analysisComplete=false means
+exclusions have not been exhaustively analyzed, even if exclusions is empty.
+Solveset completeness is solver-reported; substitution checks do not establish it.
+Verification checks distinguish exact arithmetic, same-engine symbolic consistency,
+numerical residuals and estimated errors. Unknown checks are displayed as unknown.
+
+numeric_math and convex_optimize accept precision with absoluteTolerance,
+relativeTolerance, maxIterations, mode, workingDigits, maxDigits and
+certificationRequired. Do not combine precision with legacy tolerance. Defaults are
+binary64, 15 working digits, 200 iterations; both tolerances default to 1e-8 for
+numeric_math and 1e-7 for optimization. Requested digits/tolerances are not achieved
+accuracy. High-precision and certified modes currently return UNSUPPORTED_PRECISION;
+there is no silent fallback. Exact interval/ball certification and independent
+optimization certificates remain later backend work.
+
+Linear solves report backward error; quadrature reports an estimate, never a strict
+bound. Root position error is not certified and root search completeness is unknown.
+Minimization uses absoluteTolerance for position termination; relativeTolerance does
+not establish a minimizer error bound. Convex feasibility checks evaluate each original
+constraint against absoluteTolerance + relativeTolerance * its original-model scale.
+Raw solver status is preserved; failed/unknown checks downgrade normalizedStatus to
+optimal_inaccurate. No KKT/certificate verification is claimed. Unconstrained problems
+have no primal constraint checks and therefore verification is not_checked.
+
+Symbolic integration endpoints may be exact strings, e.g. ["0", "1/3"],
+["0", "pi"] or large integer strings. No endpoint passes through float. Legacy JSON
+floating-point endpoints use their received decimal representation, with a warning;
+use strings to preserve original decimal literals across languages.

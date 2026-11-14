@@ -33,7 +33,9 @@ export interface ToolOutput {
         scope?: string;
         checks?: {
             name: string;
-            passed: boolean;
+            passed?: boolean;
+            status?: string;
+            evidence?: string;
         }[];
     };
     artifacts: Artifact[];
