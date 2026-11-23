@@ -17,7 +17,7 @@ class Network(BaseModel):
     @model_validator(mode="after")
     def valid_heads(self):
         if self.arch == "transformer" and self.width % self.heads:
-            raise ValueError("Transformer 通道数须能被注意力头数整除")
+            raise ValueError("Transformer width must be divisible by the attention head count")
         return self
 
 
@@ -54,9 +54,9 @@ class Config(BaseModel):
     @model_validator(mode="after")
     def device_precision(self):
         if self.amp and self.device != "cuda":
-            raise ValueError("此配置的 BF16 混合精度需要 CUDA")
+            raise ValueError("Configured BF16 mixed precision requires CUDA")
         if self.learner_gpus > 1 and (self.device != "cuda" or self.batch % self.learner_gpus):
-            raise ValueError("DDP 需要 CUDA，且全局批次应能被 GPU 数整除")
+            raise ValueError("DDP requires CUDA，and the global batch must be divisible by the GPU count")
         return self
 
 
@@ -74,7 +74,7 @@ def preset(name):
         return Config(experiment=name, net=net, device="cuda", sims=1600 if reference else 128,
                       batch=128, lanes=16, games=32, steps=128, pairs=40,
                       window=100000, warmup=100, decay_steps=100000)
-    raise ValueError("未知预设")
+    raise ValueError("Unknown preset")
 
 
 PRESETS = ("quick9","baseline9","engineering19","reference19","research19","transformer19")

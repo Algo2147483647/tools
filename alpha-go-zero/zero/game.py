@@ -62,7 +62,7 @@ class Board:
     @classmethod
     def empty(cls, size):
         if not 2 <= size <= 25:
-            raise ValueError("棋盘尺寸超出范围")
+            raise ValueError("Board size out of range")
         grid = bytes(size*size)
         return cls(size, grid, 1, 0, frozenset([grid]), (grid,))
 
@@ -92,15 +92,15 @@ class Board:
 
     def play(self, p):
         if self.done or not 0 <= p <= len(self.grid):
-            raise ValueError("棋局已结束或落点超出棋盘")
+            raise ValueError("Game finished or move outside the board")
         if p == len(self.grid):
             grid, passes, seen = self.grid, self.passes+1, self.seen
         else:
             if self.grid[p]:
-                raise ValueError("该交叉点已有棋子")
+                raise ValueError("Intersection occupied")
             grid = self.after_stone(p)
             if grid in self.seen:
-                raise ValueError("该落子违反位置超级劫")
+                raise ValueError("Move violates positional superko")
             passes, seen = 0, self.seen | {grid}
         return Board(self.size, grid, -self.turn, passes, seen, (grid, *self.frames[:7]))
 

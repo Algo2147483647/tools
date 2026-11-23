@@ -16,7 +16,7 @@ class Objects:
         try:
             import boto3
         except ImportError as exc:
-            raise ValueError('请先安装对象存储依赖 pip install -e ".[s3]"') from exc
+            raise ValueError('Install the object storage dependency first with pip install -e ".[s3]"') from exc
         self.client = boto3.client("s3")
         self.bucket = bucket
         self.prefix = prefix.strip("/")
@@ -35,7 +35,7 @@ class Objects:
         finally:
             stream.close()
         if h.hexdigest()!=expected:
-            raise ValueError("对象校验失败 "+name)
+            raise ValueError("Object checksum mismatch "+name)
 
     def put_file(self,path,key):
         from botocore.exceptions import ClientError
@@ -76,11 +76,11 @@ def snapshot(args):
                 continue
             key = digest(p)
             if p.name=="weights.pt" and key!=p.parent.name:
-                raise ValueError("冻结权重已损坏")
+                raise ValueError("Frozen weights are corrupt")
             if p.suffix in (".npz",".sgf"):
                 meta = read(p.with_name("game.json"))
                 if key!=meta["sha256" if p.suffix==".npz" else "sgf_sha256"]:
-                    raise ValueError("归档损坏 "+p.parent.name)
+                    raise ValueError("Corrupt game archive "+p.parent.name)
             store.put_file(p,key)
             manifest[p.relative_to(home()).as_posix()] = key
         data = canonical({"format":1,"run":args.run,"files":manifest})
@@ -98,20 +98,20 @@ def restore(args):
     store.read_verified("manifests/"+key,key,buf)
     manifest = json.loads(buf.getvalue())
     if manifest["format"]!=1:
-        raise ValueError("不支持的清单版本")
+        raise ValueError("Unsupported manifest version")
     dest = args.dest.resolve()
     if dest.exists():
-        raise ValueError("恢复目录须为新路径")
+        raise ValueError("Restore destination must be a new directory")
     dest.parent.mkdir(parents=True,exist_ok=True)
     tmp = Path(tempfile.mkdtemp(dir=dest.parent,prefix=".restore-"))
     try:
         for rel,key in manifest["files"].items():
             path = PurePosixPath(rel)
             if not path.parts or path.parts[0] not in ("experiments","runs") or "\\" in rel or ":" in rel:
-                raise ValueError("无效的归档路径")
+                raise ValueError("Invalid archive path")
             target = (tmp/path).resolve()
             if not target.is_relative_to(tmp) or ".." in path.parts:
-                raise ValueError("无效的归档路径")
+                raise ValueError("Invalid archive path")
             target.parent.mkdir(parents=True,exist_ok=True)
             with target.open("xb") as out:
                 store.read_verified("objects/"+ident(key,64),key,out)

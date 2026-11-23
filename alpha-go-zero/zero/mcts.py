@@ -56,7 +56,7 @@ def simulate(board, root, rng, cfg, root_prior, forced=None):
 
 def search(board, root, rng, cfg, noise=False, deadline=None, check=lambda: None):
     if board.done:
-        raise ValueError("终局无法搜索")
+        raise ValueError("Cannot search a finished game")
     if root.prior is None:
         logits, value = yield board
         root.expand(board, logits, value)

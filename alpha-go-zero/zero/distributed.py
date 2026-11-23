@@ -17,7 +17,7 @@ from .storage import atomic
 
 def launch(folder, world):
     if not dist.is_nccl_available() or torch.cuda.device_count()<world:
-        raise RuntimeError("多卡 learner 需要 Linux / NCCL 和足够的可见 CUDA 设备")
+        raise RuntimeError("Multi-GPU learner requires Linux / NCCL and enough visible CUDA devices")
     rendezvous = folder/("ddp-"+uuid.uuid4().hex)
     try:
         mp.spawn(rank_main,args=(world,str(folder),rendezvous.resolve().as_uri()),nprocs=world,join=True)

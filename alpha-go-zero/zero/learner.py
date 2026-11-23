@@ -30,7 +30,7 @@ def objective(model, data, device, amp):
         metrics.update(ownership=own,score=difference)
     metrics["loss"] = loss
     if not torch.isfinite(loss):
-        raise FloatingPointError("损失出现非有限值")
+        raise FloatingPointError("Non-finite loss")
     return loss,metrics
 
 

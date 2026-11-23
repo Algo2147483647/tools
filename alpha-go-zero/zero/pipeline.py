@@ -27,14 +27,14 @@ class Stopped(Exception):
 
 def device_setup(cfg):
     if cfg.device == "cuda" and not torch.cuda.is_available():
-        raise ValueError("CUDA 不可用，请选择 CPU 或安装对应的 PyTorch CUDA 版本")
+        raise ValueError("CUDA unavailable. Select CPU or install the matching PyTorch CUDA build")
     if cfg.amp and not torch.cuda.is_bf16_supported():
-        raise ValueError("当前 CUDA 设备不支持 BF16")
+        raise ValueError("Current CUDA device does not support BF16")
     if cfg.learner_gpus > 1 and (not torch.distributed.is_nccl_available()
                                  or torch.cuda.device_count() < cfg.learner_gpus):
-        raise ValueError("DDP 需要可用的 NCCL 与所配置数量的 CUDA 设备")
+        raise ValueError("DDP requires available NCCL and the configured number of CUDA devices")
     if cfg.device == "mps" and not torch.backends.mps.is_available():
-        raise ValueError("MPS 不可用")
+        raise ValueError("MPS unavailable")
     if cfg.device == "cpu":
         torch.set_num_threads(min(4,os.cpu_count() or 1))
 
@@ -121,7 +121,7 @@ class Run:
                 shutil.copyfileobj(old,new)
             saved = torch.load(checkpoint,map_location="cpu",weights_only=True)
             if cfg.model_dump() != saved["config"]:
-                raise ValueError("续训配置与检查点不一致")
+                raise ValueError("Resume configuration differs from checkpoint")
             model.load_state_dict(saved["model"])
             optimizer.load_state_dict(saved["optimizer"])
             rng.bit_generator.state = saved["numpy"]
@@ -195,7 +195,7 @@ class Run:
                     replay = Replay(reg,state["ids"],cfg.window,"train")
                     planned = state["planned"]
                     if not replay.size or not planned:
-                        self.log("skip",epoch=epoch,reason="完整新增训练局面不足以支持一次更新")
+                        self.log("skip",epoch=epoch,reason="Too few new training positions for one update")
                         state.update(epoch=epoch+1,phase="start")
                         save()
                         continue

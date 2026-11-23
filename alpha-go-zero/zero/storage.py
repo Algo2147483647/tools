@@ -57,7 +57,7 @@ def read(path):
 
 def ident(key, length):
     if len(key) != length or any(c not in "0123456789abcdef" for c in key):
-        raise ValueError("无效的标识")
+        raise ValueError("Invalid identifier")
     return key
 
 
@@ -109,7 +109,7 @@ class Registry:
             if self.champion() != expected:
                 return False
             if not (self.path/"models"/ident(candidate,64)/"meta.json").is_file():
-                raise ValueError("找不到候选模型")
+                raise ValueError("Candidate model not found")
             entry = dict(id=candidate,previous=expected,time=time.time(),operation=operation)
             write(path,{**entry,"history":[*history,entry]})
             return True
@@ -122,7 +122,7 @@ def load_model(folder):
     key = ident(folder.name,64)
     path = folder/"weights.pt"
     if digest(path) != key:
-        raise ValueError("冻结权重校验失败")
+        raise ValueError("Frozen weight checksum mismatch")
     payload = torch.load(path,map_location="cpu",weights_only=True)
     model = PolicyValue(Network(**payload["net"]))
     model.load_state_dict(payload["state"])
@@ -146,4 +146,4 @@ def locate_model(key, registry=None):
     for row in all_models():
         if row["id"] == key and (registry is None or row["registry"] == registry):
             return home()/"experiments"/row["registry"]/"models"/key
-    raise ValueError("找不到模型")
+    raise ValueError("Model not found")

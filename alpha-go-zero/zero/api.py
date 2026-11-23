@@ -10,7 +10,7 @@ from . import jobs, play
 from .config import Config, PRESETS, preset
 from .storage import all_models, read, run_dir
 
-app = FastAPI(title="弈零研究台")
+app = FastAPI(title="WeiQi Zero Workbench")
 
 
 @app.exception_handler(ValueError)
@@ -20,7 +20,7 @@ def bad_request(_,exc):
 
 @app.exception_handler(FileNotFoundError)
 def missing(_,exc):
-    return JSONResponse({"detail":"找不到对应的本地产物"},status_code=404)
+    return JSONResponse({"detail":"Local artifact not found"},status_code=404)
 
 
 class NewGame(BaseModel):

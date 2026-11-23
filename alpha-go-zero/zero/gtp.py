@@ -130,16 +130,16 @@ class Client:
             try:
                 line = self.lines.get(timeout=max(0,deadline-time.monotonic()))
             except Empty:
-                raise TimeoutError("GTP 超时 "+text) from None
+                raise TimeoutError("GTP timeout "+text) from None
             if line is None:
-                raise RuntimeError("外部引擎意外退出")
+                raise RuntimeError("External engine exited unexpectedly")
             if not line and response:
                 break
             if line:
                 response.append(line)
         body = "\n".join(response)
         if not body.startswith("="):
-            raise ValueError("GTP 拒绝命令 "+text+" "+body)
+            raise ValueError("GTP command rejected "+text+" "+body)
         return body[1:].strip()
 
     def close(self):
@@ -157,7 +157,7 @@ class Client:
 
 def benchmark(args):
     if not (1<=args.seconds<=3600 and 1<=args.pairs<=5000):
-        raise ValueError("用时或开局对数越界")
+        raise ValueError("Invalid time budget or opening-pair count")
     with compute_lock():
         _benchmark(args)
 

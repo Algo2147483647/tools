@@ -57,7 +57,7 @@ def coordinate(run,state):
             if lease.exists() and read(lease)["expires"]>time.time():
                 idle = time.monotonic()
             if time.monotonic()-idle>900:
-                raise RuntimeError("15 分钟内没有采样节点持有目标租约。连接 actor 后从检查点续训。")
+                raise RuntimeError("15 minutes elapsed without a lease holder. Connect an actor and resume from the checkpoint.")
             time.sleep(0.35)
         yield read(folder/"result.json")
 
@@ -109,7 +109,7 @@ def work(key,device):
     root = run_dir(key)
     cfg = Config(**read(root/"status.json")["config"])
     if cfg.sampler!="actors":
-        raise ValueError("任务需要使用 actors 采样模式")
+        raise ValueError("This job requires actors sampling mode")
     actor_cfg = Config(**{**cfg.model_dump(),"device":device,"amp":False,"learner_gpus":1})
     device_setup(actor_cfg)
     reg = Registry(cfg)

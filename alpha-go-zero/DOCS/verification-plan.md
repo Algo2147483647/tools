@@ -1,24 +1,20 @@
-# 集中验收清单
+# Integrated acceptance checklist
 
-更新于 2026-11-24。下列项目均待执行。本次工作仅有本机依赖安装、编译构建和服务启动记录，没有自动化测试、浏览器验收、自我训练、模型评估或长时间基准数据。
+These checks are pending. Build and startup evidence alone does not establish rules correctness, recoverability or playing strength.
 
-## G1 与首个可复现闭环
+| Gate | Procedure | Evidence required |
+| --- | --- | --- |
+| G1-01 · Installation and rules | Install in clean Windows and Linux environments. Launch with default and custom ports. Compare native and Python rules on capture, suicide, ko, triple ko, neutral areas, two passes and komi. Replay seeded random games. | Toolchain, active backend, launch records, move-by-move agreement on legality, board, player and final ownership. |
+| G1-02 · Lifecycle | Stop during sampling, learning and evaluation. Restart the service and resume into a new run. Interrupt publication between the match report and champion update. | Source files preserved, continuous steps and optimizer state, reproducible recovery boundary, idempotent publication and exclusive task ownership. |
+| G1-03 · Data and learning loop | Check value signs, visit inheritance, legal masks, noise isolation, D4 transforms and normalized targets. Replay NPZ and SGF. Resubmit duplicates, truncate a game and corrupt a copy. Run one complete 9×9 iteration from random weights. | Matching replay, no duplicate update credit, no outcome labels on unfinished games, corruption isolated, frozen candidate, paired report and independently recomputed gate. |
+| G1-04 · Workbench | Exercise both colors and sizes, AI replies, review, undo, pass, SGF, refresh, stop, resume and report download. Inspect desktop and narrow layouts, keyboard controls, labels and error states. | Reproducible observations for each platform, screen size and failure path. |
 
-1. **安装和启动。** 记录 Python、C++ 编译器、Node、PyTorch、硬件、工作区源码摘要和端口。从空环境安装，分别核对 C++ 扩展路径与 Python 回退。启动 Windows／Linux 默认和自定义端口，核对前端与 API 来自预期实例。
-2. **规则对照。** 捕获、单子自杀重复、多子自杀、简单劫、三劫与更早历史重复、互活／中立区域、空盘双停着和白贴目。用独立慢规则对照逐手棋盘、行棋者、合法掩码、终局及归属。随机轨迹保留种子与 SGF；停着虽重复棋盘仍可合法终局。
-3. **搜索语义。** 构造一步终局与两层回传位置，核对父方 Q 符号、非法动作零访问、每手新增预算、继承访问与根噪声隔离。相同棋盘不同历史分别搜索。Gumbel 分支检查候选减半、每个预算规模下的模拟总数、合法目标归一和动作可追溯性。
-4. **数据质量。** 逐手重放 SGF 和 NPZ，核对动作、特征、次数、新增预算、目标、归属、分差与当前行棋方视角。D4 同步变换须保持停着位置。重复提交不重复计数。截断局无胜负标签且不进入回放。训练与验证以整盘分组。对归档副本注入单字节损坏，核对校验阻断和隔离。
-5. **9 路闭环。** 在全新的数据目录与实验名，从随机权重执行一轮。收集权重摘要、完整局／截断局、有效新增局面、实际更新数、候选摘要和交换颜色比赛。人工复算成对下界及晋级判断。若新增训练集不足，日志应能解释更新数为零的原因。
-6. **停止与恢复。** 分别在采样、学习和评估期间请求停止，检查所有已提交产物。复制源目录摘要后创建续训，核对源文件、步数、动量、回放清单与随机状态。强杀时用最近一次完整提交恢复。模拟报告写入和冠军发布之间的中断，重复恢复只应用同一次发布。
-7. **前端验收。** 检查 9／19 路、执黑／执白、当前与历史手、AI 错误、悔棋、停着和 SGF。训练期间刷新、打开第二个标签页、停止、续训和下载报告。模型仓库区分随机初始、候选、已发布与未晋级。桌面和窄屏分别记录键盘可操作性、坐标对齐及错误状态。
-8. **棋力验收。** 冻结计划并使用多个独立实验名／种子。相同规则、相同预算和独立开局，对比随机初始、历史模型与独立确认集。报告胜负、完整开局对、未完成数、单侧成对下界和累计资源。单轮损失或一场小样本比赛不足以关闭 P1 的学习提升条件。
+For each check record date, operator, code digest, configuration, hardware, seed, data directory, artifacts, failures and limitations. Demonstrate learning separately with independent seeds and frozen opponents.
 
-## 扩展与前沿基准
+## Scale-up acceptance
 
-- 19 路重新随机初始化。按并行盘数、主干、精度、模拟数分组，记录吞吐、内存、平均局长、完整局比例、样本年龄和复用。连续 24–72 小时测量实际设备时间与成本。
-- 让两名 actor 同时领取任务，分别模拟节点退出、租约过期、上传中断和存储满。只有有效令牌可提交，共用权重版本且重试幂等。S3 恢复目录和原始不可变文件按摘要对照。
-- 在实际 Linux / NCCL 环境比较单卡和 DDP 的同一全局批次、同步 BN、梯度和检查点恢复。研究混合精度时追加同用时成对比赛。
-- 运行至少七天，记录资源预算、故障演练、停止延迟与最后完整检查点。用相同开局种子对照单进程和独立评估进程池，检查每个开局只出现一次换色配对，以及历史联赛的多对手统计。
-- 冻结外部对手权重、引擎、参数和设备映射。检查双方真实用时、截断、超时、外部日志与棋谱，规则对齐后再解读结果。固定开局对数和门槛；保留失败实验。将统计棋力、特殊局面和对抗鲁棒性分别报告。
-
-每项记录填写 **日期、操作者、代码摘要、实验配置、硬件、种子、产物位置、实际观察、限制与结论**。任何无法复现的项目保留为待验收。
+1. Initialize 19×19 independently. Run a 24–72 hour benchmark and record end-to-end costs and completed games.
+2. Exercise actor expiry, duplicate claims, stale submissions, storage exhaustion and interrupted snapshot uploads. Restore into a fresh directory and compare hashes.
+3. Compare DDP against single-device updates with matched global batches. Check synchronized normalization, mixed precision, gradients, restoration and paired strength.
+4. Operate for at least seven days with failure drills and budget stops. Compare pooled and serial evaluation schedules and verify league correction.
+5. Freeze strong public opponents, rules, devices and time controls. Publish complete pairs, failures, actual move times and robustness results separately from headline strength.

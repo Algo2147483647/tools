@@ -47,23 +47,23 @@ def replay(cfg, rows, final):
     inherited = 0
     for x, mask, turn, action, visits, value, target in rows:
         if turn != board.turn or not np.array_equal(board.features(),x) or not np.array_equal(board.legal(),mask):
-            raise ValueError("棋谱与特征或合法掩码不一致")
+            raise ValueError("Replay features or legal mask mismatch")
         if (visits.dtype.kind not in "iu" or visits.shape != mask.shape or (visits < 0).any()
                 or visits[mask == 0].any() or not mask[action] or not visits[action]
                 or not -1.000001 <= value <= 1.000001):
-            raise ValueError("搜索记录无效")
+            raise ValueError("Invalid search record")
         if (target.shape!=mask.shape or not np.isfinite(target).all() or (target<0).any()
                 or target[mask==0].any() or not np.isclose(target.sum(),1)):
-            raise ValueError("策略目标无效")
+            raise ValueError("Invalid policy target")
         if cfg.selfplay_search=="puct" and not np.allclose(target,visits/visits.sum()):
-            raise ValueError("PUCT 策略目标与访问次数不一致")
+            raise ValueError("PUCT policy target disagrees with visit counts")
         # A child's first visit expands it. All later entries traverse one child edge.
         if visits.sum() != cfg.sims + inherited:
-            raise ValueError("搜索预算与继承访问数不符")
+            raise ValueError("Search budget disagrees with inherited visits")
         inherited = max(0,int(visits[action])-1) if cfg.selfplay_search=="puct" else 0
         board = board.play(action)
     if board != final:
-        raise ValueError("重放终局不一致")
+        raise ValueError("Final replay state mismatch")
     return board
 
 
@@ -101,7 +101,7 @@ def archive(registry, cfg, model, seed, result, producer):
                 if (digest(folder/"positions.npz") != old["sha256"]
                         or digest(folder/"game.sgf") != old["sgf_sha256"]):
                     quarantine(folder)
-                    raise ValueError(f"已有归档校验失败，已隔离 {key}")
+                    raise ValueError(f"Existing archive failed verification and was quarantined {key}")
                 return old, False
             os.rename(tmp,folder)
         return meta, True
@@ -146,7 +146,7 @@ class Replay:
                     with FileLock(str(self.base.parent/"archive.lock")):
                         if path.exists() and digest(path)!=meta["sha256"]:
                             quarantine(path.parent)
-                    raise ValueError(f"样本校验失败，检查隔离目录 {key}")
+                    raise ValueError(f"Sample checksum mismatch. Check quarantine for {key}")
                 self.verified.add(key)
                 with np.load(path,allow_pickle=False) as data:
                     self.cache[key] = {name:data[name] for name in ("x","target","legal","z","owner","margin","turn")}

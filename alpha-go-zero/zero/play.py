@@ -17,7 +17,7 @@ class Session:
         if key:
             model = load_model(locate_model(key))
             if model.config.size != size:
-                raise ValueError("模型与棋盘尺寸不一致")
+                raise ValueError("Model and board size differ")
         else:
             with torch.random.fork_rng(devices=[]):
                 torch.manual_seed(seed)
@@ -46,7 +46,7 @@ class Session:
 
     def move(self, action):
         if self.states[-1].turn != self.human:
-            raise ValueError("当前轮到模型落子")
+            raise ValueError("The model moves next")
         length = len(self.actions)
         self.push(action)
         try:
@@ -65,7 +65,7 @@ class Session:
         while length>=0 and self.states[length].turn != self.human:
             length -= 1
         if length<0:
-            raise ValueError("还没有可撤销的人类着手")
+            raise ValueError("No human move to undo")
         self.rewind(length)
 
     def inspect(self):
@@ -75,7 +75,7 @@ class Session:
     def view(self, key, ply=None):
         i = len(self.actions) if ply is None else ply
         if not 0 <= i < len(self.states):
-            raise ValueError("手数超出范围")
+            raise ValueError("Move number out of range")
         board = self.states[i]
         return dict(id=key,size=board.size,grid=list(board.grid),turn=board.turn,done=board.done,
                     passes=board.passes,margin=board.margin() if board.done else None,
@@ -105,7 +105,7 @@ def create(*args):
 def access(key, action=None, *args):
     with lock:
         if key not in sessions:
-            raise ValueError("对局已过期，请新建棋局")
+            raise ValueError("Game expired. Start a new game.")
         session = sessions[key]
         sessions.move_to_end(key)
         if action=="sgf":

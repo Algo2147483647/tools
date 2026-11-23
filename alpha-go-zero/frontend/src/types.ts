@@ -30,11 +30,11 @@ export interface Report {
   wins: number; losses: number; draws: number; complete_pairs: number; planned_pairs: number; paired_score: number|null
   lower95: number|null; unfinished: number; published: boolean; eligible: boolean; games: {sgf: string; margin: number|null}[]
 }
-export const phases: Record<string,string> = {startup:'准备中',selfplay:'自我对弈',learn:'网络更新',arena:'成对比赛',finished:'已结束'}
-export const statuses: Record<string,string> = {starting:'启动中',running:'运行中',stopping:'停止中',completed:'已完成',failed:'失败',interrupted:'意外中断',stopped:'已停止'}
+export const phases: Record<string,string> = {startup:'Preparing',selfplay:'Self-play',learn:'Learning',arena:'Paired evaluation',finished:'Finished'}
+export const statuses: Record<string,string> = {starting:'Starting',running:'Running',stopping:'Stopping',completed:'Completed',failed:'Failed',interrupted:'Interrupted',stopped:'Stopped'}
 export const active = (r: Job) => ['starting','running','stopping'].includes(r.state)
 export const short = (s:string) => s.slice(0,10)
-export const date = (stamp:number) => new Date(stamp*1000).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
+export const date = (stamp:number) => new Date(stamp*1000).toLocaleString('en-US',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
 export const pct = (x:number|null) => x==null?'—':(100*x).toFixed(1)+'%'
 export async function api<T>(path:string, data?:unknown):Promise<T> {
   const res = await fetch('/api/'+path,data===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})

@@ -63,7 +63,7 @@ class Evaluator:
         logits = logits.float().cpu().numpy()
         values = values.float().cpu().numpy()
         if not (np.isfinite(logits).all() and np.isfinite(values).all()):
-            raise FloatingPointError("网络推理出现非有限值")
+            raise FloatingPointError("Non-finite network output")
         self.positions += len(boards)
         self.batches += 1
         return zip(logits, values, strict=True)

@@ -9,13 +9,13 @@ const windows = process.platform === 'win32';
 const localPython = join(root, '.venv', windows ? 'Scripts/python.exe' : 'bin/python');
 const python = process.env.ZERO_PYTHON || localPython;
 const port = Number(process.argv[2] || process.env.ZERO_API_PORT || 8765);
-if (!Number.isInteger(port) || port < 1 || port > 65535) throw Error('端口须为 1–65535 的整数');
+if (!Number.isInteger(port) || port < 1 || port > 65535) throw Error('Port must be an integer in 1–65535 range');
 const frontend = join(root, 'frontend');
 async function run(command, args, cwd, shell = false) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {cwd, stdio: 'inherit', shell, windowsHide: true});
     child.once('error', reject);
-    child.once('exit', (code, signal) => code === 0 || signal === 'SIGINT' ? resolve() : reject(Error('启动命令失败 ' + (code ?? signal))));
+    child.once('exit', (code, signal) => code === 0 || signal === 'SIGINT' ? resolve() : reject(Error('Launch command failed ' + (code ?? signal))));
     const stop = () => child.kill('SIGINT');
     process.once('SIGINT', stop);
     child.once('exit', () => process.off('SIGINT', stop));
@@ -43,7 +43,7 @@ function serving() {
       let text = '';
       response.setEncoding('utf8').on('data', part => { if (text.length < 200000) text += part; });
       response.on('end', () => {
-        try { resolve(JSON.parse(text).info.title === '弈零研究台'); } catch { resolve(false); }
+        try { resolve(JSON.parse(text).info.title === 'WeiQi Zero Workbench'); } catch { resolve(false); }
       }).on('error', () => resolve(false));
     });
     request.on('error', () => resolve(false)).on('timeout', () => request.destroy());
@@ -55,7 +55,7 @@ function openBrowser() {
   child.on('error', () => console.log(address));
   child.unref();
 }
-console.log('弈零研究台  ' + address);
+console.log('WeiQi Zero Workbench  ' + address);
 if (await serving()) {
   openBrowser();
 } else {

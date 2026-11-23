@@ -1,44 +1,21 @@
-# 开发阶段表
+# Development roadmap
 
-更新于 2026-11-24。此表记录 `tools/alpha-go-zero` 独立实现的状态。原方案中的参考周期假设 3–5 人和 4–8 张研发 GPU。验收活动按 P0 → P1 → P2/G1 → P3 → P4 → P5 推进。预先写入大盘、分布式和研究分支的代码，不改变各阶段的退出条件。
+Status for this independent checkout. The November 23 design assumed 3–5 contributors and 4–8 development GPUs. Schedule estimates describe planning assumptions. Historical reports of 32 tests and a two-game run refer to another checkout.
 
-| 阶段 | 参考周期 | 本目录已有交付 | 退出条件 | 目前证据 |
-| --- | --- | --- | --- | --- |
-| P0 规则与协议 | 第 1–2 周 | C++ / Python 两条规则路径、完整 PSK 历史、面积计分、17 平面、SGF | 固定规则用例、非局部超级劫和随机对局逐手一致 | Windows 原生扩展已编译；规则行为待验收 |
-| P1 9 路闭环 | 第 3–5 周 | 网络、PUCT、批量自弈、回放校验、SGD、冻结模型、成对评估和恢复 | 从随机权重完成可恢复闭环；多种子验证学习提升 | 源码已写入；本轮未训练、未比赛 |
-| P2 本地工作台 | 衔接 P1 | 四个 React 页面、FastAPI、单任务互斥、停止与续训、同端口启动器 | 前后端操作、重复点击、刷新恢复、异常与跨平台启动验收 | TypeScript、Vite 生产构建及本机服务启动通过；浏览器操作待验收 |
-| G1 集中验收 | 扩展前 | 本目录独立的验收清单，历史证据与新代码分开登记 | 关键故障清零，产物和限制可复查 | 未执行 |
-| P3 19 路基线 | 第 6–9 周 | 参数化动作空间和网络、隔离数据、跨局批量推理、样本复用／年龄指标、预热与衰减 | 大盘训练可恢复，完成 24–72 小时端到端资源测量 | 代码已写入；吞吐、成本及棋力无实测值 |
-| P4 持续训练 | 第 10–14 周 | 共享目录采样租约、单机多卡 DDP / BF16、S3 快照、独立评估进程池、历史循环赛、预算停止和冠军回滚 | 连续至少 7 天运行、存储／节点故障演练、独立评估池和历史联赛 | 分布式路径待联调，跨主机 learner 与专用评估集群仍待建设 |
-| P5 前沿研究 | 第 15 周起 | 归属／分差辅助头、Transformer、Gumbel 根搜索、冻结 KataGo 定时对赛入口 | 多种子等成本消融、多个强公开权重对赛、单列鲁棒性证据 | 可配置实验分支；尚无训练结果、独立比赛或棋力结论 |
-
-## 交付与下一次决策
-
-| 编号 | 当前实现或缺口 | 下一次验收／决策 |
+| Stage | Planning window | Implementation and outstanding evidence |
 | --- | --- | --- |
-| G1-01 | Python 项目和可选 C++20 扩展，生产页面由 API 同端口提供 | 从干净环境执行默认与自定义端口启动，复查 Python 回退，记录实际使用的规则后端 |
-| G1-02 | 原子检查点，训练／评估任务互斥，停止标记与单独的续训任务目录 | 在各阶段停止、强制退出、重启服务，核对步数与源目录 |
-| G1-03 | 完整重放、内容去重、按整盘分组、截断局隔离 | 核对计数、合法掩码、状态视角、终局标签以及重试产物 |
-| G1-04 | 对弈、回看、SGF、训练参数、指标、报告下载 | Windows／Linux、桌面和窄屏运行验收 |
-| P3-01 | 9 路和 19 路独立初始化，各规格分别登记权重和归档 | 验证跨规格拒绝、同规则跨主干成对比赛 |
-| P3-02 | 原生规则热路径与精确 PSK，当前搜索分支复制状态 | 先测 CPU、内存和时间热点，再决定增量棋串与撤销栈的投入 |
-| P3-03 | 同一网络、多盘共享一次推理批次，搜索树独立 | 量化并行盘数对吞吐和峰值内存的影响，检查取消后的统计 |
-| P3-04 | 样本年龄、复用率、更新数、梯度范数、损失、验证批次 | 对照供给速度、实际消费与棋力，用多种子复查学习曲线 |
-| P3-05 | 记录网络评估数、批次数和采样时间 | 收集完整局／秒、设备利用率、能耗／实际价格和 24–72 小时报告 |
-| P4-01 | 文件租约、过期重领、令牌提交与内容去重 | 中断 actor，验证同一任务有效局面只记一次 |
-| P4-02 | S3 按内容寻址上传与回读校验，清单最后发布 | 中断上传、校验失败与全新目录恢复演练；多机存储吞吐待测 |
-| P4-03 | 同步 BatchNorm、全局批次切分、梯度同步、完整优化器状态 | 对比单卡精度、恢复后首步和成对棋力 |
-| P4-04 | 冻结比较、独立评估进程池、历史循环赛、冠军原子更新与回滚 | 故障后恢复、过期晋级阻断与多候选独立确认赛 |
-| P4-05 | 日志、资源预算停止和本地运行报告 | 长期监控、连续七天稳定性和预设故障演练 |
-| P5-01 | 完整终局生成当前方归属图和标准化分差 | 同计算预算下做辅助损失权重消融 |
-| P5-02 | PUCT 访问目标与 Gumbel 改进目标分别入库 | 比较策略目标、采样预算与训练资源，版本化任何追加的目标修剪 |
-| P5-03 | Transformer 主干与 Gumbel 根节点分支可单独配置 | 固定种子和等成本比赛，区分网络增益和搜索增益 |
-| P5-04 | 本机冻结 KataGo 权重与配置的成对定时比赛 | 多版本强公开对手、专用劫争及循环包围基准、独立复赛 |
+| P0 · Rules and protocol | Weeks 1–2 | C++ and Python rules, exact superko, area scoring, 17 planes and SGF. Native compilation recorded. Fixed positions and randomized rule comparisons remain open. |
+| P1 · 9×9 learning loop | Weeks 3–5 | Search, self-play, training, checkpoints and paired promotion implemented. End-to-end recovery and repeatable multi-seed learning gains remain open. |
+| P2 · Local workbench | Overlaps P1 | Four workspaces, task control, resume and launcher implemented. Windows service startup and frontend build recorded. Browser and cross-platform acceptance remain open. |
+| G1 · Integrated acceptance | Before scale-up | Next stage. Record reproducible results for rules, data quality, job lifecycle and the user interface. |
+| P3 · 19×19 baseline | Weeks 6–9 | Size-specific networks, shared inference and data metrics implemented. Measure a recoverable 19×19 run, throughput and cost over 24–72 hours. |
+| P4 · Continuous training | Weeks 10–14 | Actors, leases, single-node DDP, snapshots, independent evaluation workers, leagues and rollback implemented. Validate failure handling and seven days of operation. Cross-host learner orchestration remains future work. |
+| P5 · Research | Week 15 onward | Auxiliary heads, Transformer, Gumbel root and timed KataGo matches available as experimental paths. Equal-cost ablations, external matches and robustness evidence remain open. |
 
-## 职责与阶段风险
+## Immediate decision
 
-规则与搜索负责人管理规则语义、步数截断和搜索性能。学习负责人管理网络、目标、采样年龄及消融。平台负责人管理检查点、存储、租约与资源预算。前端负责人负责可操作性及恢复。评估负责人冻结比赛条件、公布分母与失败记录，并独立复核发布。
+Execute G1-01 through G1-04 in the [acceptance checklist](verification-plan.md). Close critical correctness or recovery defects before allocating resources to P3. Record implementation, verification and playing strength separately.
 
-规则或标签错误时，应暂停扩大采样，保留棋谱并隔离关联分片。数据复用过快时先调整更新数或采样量。训练损失下降而比赛退化时保留当前冠军。同一对手多次筛选产生的最高胜率需要独立确认。达到预算时保存进度，再依据实际学习曲线决定后续投入。
+## Later milestones
 
-每次验收记录代码摘要、配置、硬件、种子、数据目录、结果文件和限制。原方案中的 32 项测试、两盘自弈和一胜一负的快跑结果未在本目录复现。它们均不计入上表的通过项。
+Profile search and rules before adding incremental strings or undo stacks. Compare batch sizes and measure sample age, reuse, throughput and memory. Reassign failed actors, interrupt uploads, restore snapshots, and compare single-GPU and DDP recovery. Validate expected-champion publication and historical league statistics. Use frozen configurations, independent seeds and held-out opponents for research comparisons. Retain failed runs and stop at the configured budget.

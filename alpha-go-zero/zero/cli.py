@@ -5,53 +5,53 @@ import time
 
 
 def main():
-    parser = argparse.ArgumentParser(prog="weiqi-zero",description="弈零 · 围棋自我对弈研究台")
+    parser = argparse.ArgumentParser(prog="weiqi-zero",description="WeiQi Zero · Go Self-Play Workbench")
     sub = parser.add_subparsers(dest="cmd",required=True)
-    config = sub.add_parser("config",help="导出完整实验预设 JSON")
+    config = sub.add_parser("config",help="Export the full experiment preset as JSON")
     config.add_argument("--preset",default="quick9")
     config.add_argument("--out",type=Path)
-    serve = sub.add_parser("serve",help="启动本地工作台与 API")
+    serve = sub.add_parser("serve",help="Start the local workbench and API")
     serve.add_argument("--port",type=int,default=8765)
-    train = sub.add_parser("train",help="生成自我对弈数据、更新网络并评估冻结候选")
-    train.add_argument("--resume",help="从现有任务的检查点新建任务")
+    train = sub.add_parser("train",help="Generate self-play data, update the network and evaluate the frozen candidate")
+    train.add_argument("--resume",help="Start a new run from an existing checkpoint")
     train.add_argument("--rounds",type=int,default=1)
-    arena = sub.add_parser("arena",help="独立成对评估")
+    arena = sub.add_parser("arena",help="Independent paired evaluation")
     arena.add_argument("candidate")
     arena.add_argument("incumbent")
-    league = sub.add_parser("league",help="对多个冻结历史版本进行独立循环赛")
+    league = sub.add_parser("league",help="Run a round robin between frozen models")
     league.add_argument("models",nargs="+")
     for cmd in (train,arena,league):
         cmd.add_argument("--preset",default="quick9")
-        cmd.add_argument("--config",type=Path,help="完整 JSON 配置")
+        cmd.add_argument("--config",type=Path,help="Full JSON configuration")
         cmd.add_argument("--device",choices=["cpu","cuda","mps"])
         cmd.add_argument("--experiment")
         for arg in ("seed","sims","pairs","games","lanes","steps","batch"):
             cmd.add_argument("--"+arg,type=int)
         cmd.add_argument("--detach",action="store_true")
-    sub.add_parser("models",help="列出本地冻结模型")
-    sub.add_parser("runs",help="列出本地任务")
-    sub.add_parser("stop",help="请求有序停止").add_argument("id")
-    actor = sub.add_parser("actor",help="为指定训练任务领取自弈租约")
+    sub.add_parser("models",help="List frozen models")
+    sub.add_parser("runs",help="List local jobs")
+    sub.add_parser("stop",help="Request a graceful stop").add_argument("id")
+    actor = sub.add_parser("actor",help="Claim self-play leases for a training job")
     actor.add_argument("id")
     actor.add_argument("--device",choices=["cpu","cuda","mps"],default="cpu")
-    snapshot = sub.add_parser("snapshot",help="将一次任务和所属实验的归档写入 S3")
+    snapshot = sub.add_parser("snapshot",help="Snapshot the run and experiment archive to S3")
     snapshot.add_argument("--run",required=True)
-    restore = sub.add_parser("restore",help="从对象清单恢复到新的数据目录")
+    restore = sub.add_parser("restore",help="Restore a manifest into a new data directory")
     restore.add_argument("--dest",required=True,type=Path)
     restore.add_argument("--manifest",required=True)
     for cmd in (snapshot,restore):
         cmd.add_argument("--bucket",required=True)
         cmd.add_argument("--prefix",default="weiqi-zero")
-    rollback = sub.add_parser("rollback",help="将冠军指针回滚到已发布过的同实验版本")
+    rollback = sub.add_parser("rollback",help="Roll back to a previously published champion")
     rollback.add_argument("--model",required=True)
     rollback.add_argument("--expected",required=True)
     rollback.add_argument("--experiment",required=True)
-    gtp = sub.add_parser("gtp",help="以 GTP v2 协议连接围棋客户端")
+    gtp = sub.add_parser("gtp",help="Use GTP v2 to connect a Go client")
     gtp.add_argument("--model",required=True)
     gtp.add_argument("--sims",type=int,default=128)
     gtp.add_argument("--seconds",type=float)
     gtp.add_argument("--device",default="cpu",choices=["cpu","cuda","mps"])
-    compare = sub.add_parser("benchmark",help="与冻结的本地 KataGo 做定时成对评估")
+    compare = sub.add_parser("benchmark",help="Run a timed paired benchmark against a frozen local KataGo engine")
     compare.add_argument("--model",required=True)
     compare.add_argument("--katago",required=True,type=Path)
     compare.add_argument("--weights",required=True,type=Path)
@@ -93,10 +93,10 @@ def main():
             reg = Registry(Config(net=meta["net"],experiment=args.experiment))
             history = read(reg.path/"champion.json")["history"]
             if not any(entry["id"]==args.model for entry in history):
-                raise ValueError("目标从未作为此实验的冠军发布")
+                raise ValueError("This model was never champion of this experiment")
             reg.model(args.model)
             if not reg.publish(args.model,args.expected):
-                raise ValueError("冠军摘要已变化，请重新查看仓库")
+                raise ValueError("Champion changed. Refresh the model registry.")
             result = {"champion":args.model,"previous":args.expected}
     elif args.cmd=="models":
         result = all_models()
@@ -107,7 +107,7 @@ def main():
     else:
         if getattr(args,"resume",None) and (args.config or any(getattr(args,k) is not None
                 for k in ("device","experiment","seed","sims","pairs","games","lanes","steps","batch"))):
-            parser.error("续训沿用检查点的配置，仅指定新增轮数")
+            parser.error("Resume uses the checkpoint configuration. Specify only the additional rounds.")
         data = read(args.config) if args.config else preset(args.preset).model_dump()
         data.update({k:getattr(args,k) for k in ("device","experiment","seed","sims","pairs","games",
                     "lanes","steps","batch") if getattr(args,k) is not None})
@@ -128,8 +128,8 @@ def main():
                     result = next(r for r in rows if r["id"]==key)
             except KeyboardInterrupt:
                 jobs.stop(key)
-                print("已请求停止",key)
+                print("Stop requested",key)
                 return
             if result["state"] in ("failed","interrupted"):
-                parser.exit(1,result.get("error","工作进程意外退出")+"\n")
+                parser.exit(1,result.get("error","Worker exited unexpectedly")+"\n")
     print(json.dumps(result,ensure_ascii=False,indent=2))
