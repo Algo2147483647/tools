@@ -1,7 +1,9 @@
 # Repository-local tooling state
 /.idea/
 /.vscode/
-/.npm-cache/
+/.npm-cache
+/node_modules/
+/.venv/
 
 # Operating-system metadata
 .DS_Store

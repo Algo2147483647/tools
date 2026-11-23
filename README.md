@@ -1,5 +1,7 @@
 # Tools
 
+[压缩感知实验室](compressed-sensing/README.md)：离线稀疏信号生成、压缩采样与 OMP / ISTA / FISTA 重建平台，支持算法对比、采样率实验、JSON/CSV 导入导出。运行 `.\launch.cmd compressed-sensing`，或直接打开 `compressed-sensing/index.html`。
+
 [Ride Pricing](ride-pricing/README.md) is an English-language Go pricing and billing service with immutable quotes and agreements, deterministic fare calculation, PostgreSQL persistence, a transactional outbox, and a runnable local demo. Start it with `ride-pricing/launch.cmd` or `go run ./cmd/api --demo` from its directory.
 
 独立运行的工具集合。Windows 启动环境统一由 [`scripts/node-runtime.ps1`](scripts/node-runtime.ps1) 管理，各应用只保留自己的构建和服务命令。
